@@ -1,9 +1,35 @@
+/* eslint-disable no-console */
 const { validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const { response } = require('../helpers/response');
 const UserModel = require('../model/users');
 
 const { APP_URL, APP_KEY, APP_UPLOAD_ROUTE } = process.env;
+
+// const { APP_URL } = process.env;
+
+exports.updateUser = async (req, res) => {
+  const setData = req.body;
+  try {
+    const getUser = await UserModel.findByPk(1);
+    if (req.file) {
+      setData.picture = `${req.file.filename}`;
+    } else {
+      setData.picture = getUser.dataValues.picture;
+    }
+    const result = await UserModel.update(setData, {
+      where: {
+        id: getUser.dataValues.id,
+      },
+    });
+    result.data = setData;
+    return response(res, true, result.data, 200);
+  } catch (err) {
+    console.log(err);
+    return response(res, false, 'An error occured', 500);
+  }
+};
 
 // const responseStandard = require('../helpers/response');
 
