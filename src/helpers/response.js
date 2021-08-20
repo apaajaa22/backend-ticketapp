@@ -1,5 +1,4 @@
 module.exports = {
-
   response(res, status, data, statusCode, pageInfo) {
     const result = {
       data: '',

@@ -1,8 +1,13 @@
 /* eslint-disable no-undef */
-const router = require('express').Router();
-const user = require('../controllers/users');
+const users = require('express').Router();
+const { checkSchema } = require('express-validator');
 const upload = require('../helpers/upload');
+const { register, login, updateUser } = require('../controllers/users');
+const schemaRegister = require('../helpers/validationSchema/register');
+const schemaLogin = require('../helpers/validationSchema/login');
 
-router.put('/update-profile', upload, user.updateUser);
+users.put('/update-profile', upload, updateUser);
+users.post('/register', checkSchema(schemaRegister), register);
+users.post('/login', checkSchema(schemaLogin), login);
 
-module.exports = router;
+module.exports = users;
