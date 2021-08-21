@@ -1,13 +1,14 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../config/sequelize');
+const airlinesModel = require('./airlines');
 
-const Tickets = sequelize.define('tickets', {
+const tickets = sequelize.define('tickets', {
   id_airlines: Sequelize.INTEGER,
-  derpature: Sequelize.STRING,
-  code_derpature: Sequelize.STRING,
+  departure: Sequelize.STRING,
+  code_departure: Sequelize.STRING,
   destination: Sequelize.STRING,
   code_destination: Sequelize.STRING,
-  derpature_time: Sequelize.STRING,
+  departure_time: Sequelize.STRING,
   arrival_time: Sequelize.STRING,
   price: Sequelize.INTEGER,
   transit: Sequelize.STRING,
@@ -17,5 +18,6 @@ const Tickets = sequelize.define('tickets', {
   seat: Sequelize.STRING,
   gate: Sequelize.STRING,
 });
+tickets.belongsTo(airlinesModel, { foreignKey: 'id_airlines', sourceKey: 'id' });
 
-module.exports = Tickets;
+module.exports = tickets;

@@ -1,6 +1,13 @@
-const router = require('express').Router();
-const tickets = require('../controllers/tickets');
+const tickets = require('express').Router();
 
-router.put('/update-ticket/:id', tickets.updateTicket);
+const {
+  createTickets, getTickets, deleteTickets, updateTicket,
+} = require('../controllers/tickets');
+// const upload = require('../helpers/upload');
 
-module.exports = router;
+tickets.put('/update-ticket/:id', updateTicket);
+tickets.post('/create-tickets', createTickets);
+tickets.get('/tickets', getTickets);
+tickets.delete('/tickets/:id', deleteTickets);
+
+module.exports = tickets;

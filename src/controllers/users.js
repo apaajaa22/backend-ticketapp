@@ -10,8 +10,6 @@ const UserModel = require('../model/users');
 const path = './assets/images';
 const { APP_KEY, APP_UPLOAD_ROUTE } = process.env;
 
-// const { APP_URL } = process.env;
-
 exports.updateUser = async (req, res) => {
   const setData = req.body;
   try {
