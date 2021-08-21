@@ -60,3 +60,14 @@ exports.getLatestUserChat = async (req, res) => {
     return response(res, false, 'An error occured', 500);
   }
 };
+
+exports.deleteChat = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const chat = await Chats.findByPk(id);
+    await chat.destroy();
+    return response(res, true, chat, 200);
+  } catch (error) {
+    return response(res, false, 'An error occured', 500);
+  }
+};
