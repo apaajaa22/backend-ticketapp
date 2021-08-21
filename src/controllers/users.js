@@ -80,7 +80,7 @@ exports.login = async (req, res) => {
   const compare = await bcrypt.compare(password, results.password);
 
   if (compare) {
-    const token = jwt.sign({ id: results.id, email: results.email }, APP_KEY, { expiresIn: '1h' });
+    const token = jwt.sign({ id: results.id, email: results.email }, APP_KEY, { expiresIn: '24h' });
     return res.status(200).json({
       success: true,
       message: 'Login success',
