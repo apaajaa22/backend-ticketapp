@@ -11,6 +11,9 @@ exports.createChat = async (req, res) => {
   setData.recipient = id;
   setData.isLatest = 1;
   setData.sender = req.authUser.id;
+  const newData = {
+    isLatest: 0,
+  };
   console.log(setData.attachment, 'test file');
 
   try {
@@ -19,7 +22,7 @@ exports.createChat = async (req, res) => {
     } else {
       setData.attachment = null;
     }
-    const getChat = await Chats.findOne({
+    await Chats.update(newData, {
       where: {
         sender: {
           [Op.in]: [setData.sender, id],
@@ -29,16 +32,35 @@ exports.createChat = async (req, res) => {
             [Op.in]: [setData.sender, id],
           },
         },
+      },
+    }, (err, updateRes) => {
+      if (!err) return response(res, true, updateRes, 200);
+      return updateRes;
+    });
+    const result = await Chats.create(setData);
+    return response(res, true, result, 200);
+  } catch (err) {
+    console.log(err);
+    return response(res, false, 'An error occured', 500);
+  }
+};
+
+exports.getChatRoom = async (req, res) => {
+  const { id } = req.params;
+  const sender = req.authUser.id;
+  try {
+    const result = await Chats.findAll({
+      where: {
+        sender: {
+          [Op.in]: [sender, id],
+        },
         [Op.and]: {
-          isLatest: true,
+          recipient: {
+            [Op.in]: [sender, id],
+          },
         },
       },
     });
-    const result = await Chats.create(setData);
-    if (getChat !== null) {
-      getChat.set('isLatest', (0));
-      await getChat.save();
-    }
     return response(res, true, result, 200);
   } catch (err) {
     console.log(err);

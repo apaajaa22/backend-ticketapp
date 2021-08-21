@@ -1,14 +1,15 @@
+/* eslint-disable radix */
 /* eslint-disable no-console */
 const { validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
+const { Op, Sequelize } = require('sequelize');
 const bcrypt = require('bcrypt');
 const { response } = require('../helpers/response');
 const UserModel = require('../model/users');
 
-// const { APP_URL, APP_KEY, APP_UPLOAD_ROUTE } = process.env;
 const path = './assets/images';
-const { APP_KEY, APP_UPLOAD_ROUTE } = process.env;
+const { APP_KEY, APP_UPLOAD_ROUTE, APP_URL } = process.env;
 
 exports.updateUser = async (req, res) => {
   const setData = req.body;
@@ -101,4 +102,58 @@ exports.login = async (req, res) => {
     success: false,
     message: 'username or password false',
   });
+};
+
+exports.searchUser = async (req, res) => {
+  const cond = req.query;
+  cond.search = cond.search || '';
+  cond.sort = cond.sort || {};
+  cond.sort.fullname = cond.sort.fullname || 'asc';
+  cond.limit = parseInt(cond.limit) || 5;
+  cond.offset = parseInt(cond.offset) || 0;
+  cond.page = parseInt(cond.page) || 1;
+  cond.offset = (cond.page * cond.limit) - cond.limit;
+  const pageInfo = {};
+
+  try {
+    const result = await UserModel.findAndCountAll({
+      where: {
+        [Op.or]: {
+          fullname: {
+            [Op.like]: `%${cond.search}%`,
+          },
+          email: {
+            [Op.like]: `%${cond.search}%`,
+          },
+        },
+      },
+      limit: cond.limit,
+      order: Sequelize.literal(`fullname ${cond.sort.fullname}`),
+      offset: cond.offset,
+    }, cond);
+    const totalData = result;
+    const totalPage = Math.ceil(totalData.count / cond.limit);
+    pageInfo.totalData = totalData;
+    pageInfo.currentPage = cond.page;
+    pageInfo.totalPage = totalPage;
+    pageInfo.limitData = cond.limit;
+    pageInfo.nextPage = cond.page < totalPage ? `${APP_URL}/users?page=${cond.page + 1}` : null;
+    pageInfo.prevPage = cond.page <= totalPage || cond.page === 1 ? `${APP_URL}/users?page=${cond.page - 1}` : null;
+    if (pageInfo.prevPage === `${APP_URL}/users?page=0`) pageInfo.prevPage = null;
+    if (result.count === 0) return response(res, false, 'User not found', 400);
+    return response(res, true, result.data, 200, pageInfo);
+  } catch (err) {
+    console.log(err);
+    return response(res, false, 'An error occured', 500);
+  }
+};
+
+exports.getSignedUser = async (req, res) => {
+  try {
+    const result = await UserModel.findByPk(req.authUser.id);
+    return response(res, true, result, 200);
+  } catch (err) {
+    console.log(err);
+    return response(res, false, 'An error occured', 500);
+  }
 };
