@@ -1,8 +1,27 @@
+/* eslint-disable no-console */
 /* eslint-disable prefer-const */
 /* eslint-disable radix */
 const { Op } = require('sequelize');
 const ticketsModel = require('../model/tickets');
 const airLinesModel = require('../model/airlines');
+const { response } = require('../helpers/response');
+const Ticket = require('../model/tickets');
+
+exports.updateTicket = async (req, res) => {
+  const setData = req.body;
+  const ticketId = req.params.id;
+  try {
+    const result = await Ticket.update(setData, {
+      where: {
+        id: ticketId,
+      },
+    });
+    return response(res, true, result, 200);
+  } catch (err) {
+    console.log(err);
+    return response(res, false, 'An error occured', 500);
+  }
+};
 
 exports.createTickets = async (req, res) => {
   const tickets = await ticketsModel.create({
