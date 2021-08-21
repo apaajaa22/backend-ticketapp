@@ -45,3 +45,18 @@ exports.createChat = async (req, res) => {
     return response(res, false, 'An error occured', 500);
   }
 };
+
+exports.getLatestUserChat = async (req, res) => {
+  try {
+    const chat = await Chats.findAll({
+      order: [['id', 'DESC']],
+      where: {
+        [Op.or]: [{ sender: req.authUser.id }, { recipient: req.authUser.id }],
+        [Op.and]: [{ isLatest: 1 }],
+      },
+    });
+    return response(res, true, chat, 200);
+  } catch (err) {
+    return response(res, false, 'An error occured', 500);
+  }
+};
