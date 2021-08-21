@@ -1,22 +1,32 @@
 /* eslint-disable no-console */
 const { validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
+const fs = require('fs');
 const bcrypt = require('bcrypt');
 const { response } = require('../helpers/response');
 const UserModel = require('../model/users');
 
-const { APP_URL, APP_KEY, APP_UPLOAD_ROUTE } = process.env;
+// const { APP_URL, APP_KEY, APP_UPLOAD_ROUTE } = process.env;
+const path = './assets/images';
+const { APP_KEY, APP_UPLOAD_ROUTE } = process.env;
 
 // const { APP_URL } = process.env;
 
 exports.updateUser = async (req, res) => {
   const setData = req.body;
   try {
-    const getUser = await UserModel.findByPk(1);
+    const getUser = await UserModel.findByPk(req.authUser.id);
     if (req.file) {
-      setData.picture = `${req.file.filename}`;
+      setData.picture = `${APP_UPLOAD_ROUTE}/${req.file.filename}`;
     } else {
       setData.picture = getUser.dataValues.picture;
+    }
+    if (req.file !== undefined && getUser.dataValues.picture !== null) {
+      const slicePicture = getUser.dataValues.picture.slice('8');
+      fs.unlinkSync(`${path}${slicePicture}`, (err, newData) => {
+        if (!err) return response(res, true, newData, 200);
+        return newData;
+      });
     }
     const result = await UserModel.update(setData, {
       where: {
