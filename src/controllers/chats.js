@@ -85,10 +85,29 @@ exports.getLatestUserChat = async (req, res) => {
 
 exports.deleteChat = async (req, res) => {
   const { id } = req.params;
+  const sender = req.authUser.id;
   try {
-    const chat = await Chats.findByPk(id);
+    const chat = await Chats.findByPk(req.body.chatId);
     await chat.destroy();
-    return response(res, true, chat, 200);
+    const chats = await Chats.findAll({
+      order: [['createdAt', 'DESC']],
+      where: {
+        sender: {
+          [Op.in]: [sender, id],
+        },
+        [Op.and]: {
+          recipient: {
+            [Op.in]: [id, sender],
+          },
+        },
+        isLatest: 0,
+      },
+      limit: 1,
+    });
+    console.log(chats[0].isLatest);
+    chats[0].isLatest = true;
+    await chats[0].save();
+    return response(res, true, chats, 200);
   } catch (error) {
     return response(res, false, 'An error occured', 500);
   }
