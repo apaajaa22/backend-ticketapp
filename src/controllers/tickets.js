@@ -12,7 +12,7 @@ exports.updateTicket = async (req, res) => {
   const setData = req.body;
   const ticketId = req.params.id;
   try {
-    const result = await Ticket.update(setData, {
+    const result = await ticketsModel.update(setData, {
       where: {
         id: ticketId,
       },
@@ -80,10 +80,18 @@ exports.getTickets = async (req, res) => {
     },
     attributes: { exclude: ['id_airlines'] },
     include: [
-      airLinesModel,
+      {
+        model: airLinesModel,
+        attributes: { exclude: ['createdAt', 'updatedAt'] },
+      },
       {
         model: ItemFacilities,
-        include: [facilities],
+        attributes: { exclude: ['createdAt', 'updatedAt'] },
+        include: [{
+          model: facilities,
+          as: 'item',
+          attributes: { exclude: ['createdAt', 'updatedAt'] },
+        }],
       },
     ],
     order,

@@ -4,11 +4,11 @@ const sequelize = require('../config/sequelize');
 // const tickets = require('./tickets');
 const facilities = require('./facilities');
 
-const ItemFacilities = sequelize.define('item_facilites', {
+const ItemFacilities = sequelize.define('item_facilities', {
   id_ticket: Sequelize.INTEGER,
   id_facilities: Sequelize.INTEGER,
 });
-ItemFacilities.belongsTo(facilities, { foreignKey: 'id_facilities', sourceKey: 'id' });
+ItemFacilities.belongsTo(facilities, { foreignKey: 'id_facilities', sourceKey: 'id', as: 'item' });
 
 // ItemFacilities.associate = function (models) {
 //   ItemFacilities.hasMany(models.tickets, { as: 'facilitiesItem' });
