@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../config/sequelize');
+const users = require('./users');
 
 const Transactions = sequelize.define('transactions', {
   id_ticket: Sequelize.INTEGER,
@@ -11,4 +12,5 @@ const Transactions = sequelize.define('transactions', {
   },
 });
 
+Transactions.belongsTo(users, { foreignKey: 'id_user', sourceKey: 'id' });
 module.exports = Transactions;

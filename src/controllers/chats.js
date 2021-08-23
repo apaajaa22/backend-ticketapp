@@ -67,3 +67,29 @@ exports.getChatRoom = async (req, res) => {
     return response(res, false, 'An error occured', 500);
   }
 };
+
+exports.getLatestUserChat = async (req, res) => {
+  try {
+    const chat = await Chats.findAll({
+      order: [['id', 'DESC']],
+      where: {
+        [Op.or]: [{ sender: req.authUser.id }, { recipient: req.authUser.id }],
+        [Op.and]: [{ isLatest: 1 }],
+      },
+    });
+    return response(res, true, chat, 200);
+  } catch (err) {
+    return response(res, false, 'An error occured', 500);
+  }
+};
+
+exports.deleteChat = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const chat = await Chats.findByPk(id);
+    await chat.destroy();
+    return response(res, true, chat, 200);
+  } catch (error) {
+    return response(res, false, 'An error occured', 500);
+  }
+};

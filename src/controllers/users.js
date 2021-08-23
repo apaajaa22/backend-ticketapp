@@ -91,7 +91,7 @@ exports.login = async (req, res) => {
   const compare = await bcrypt.compare(password, results.password);
 
   if (compare) {
-    const token = jwt.sign({ id: results.id, email: results.email }, APP_KEY, { expiresIn: '24h' });
+    const token = jwt.sign({ id: results.id, email: results.email, password: results.password }, APP_KEY, { expiresIn: '24h' });
     return res.status(200).json({
       success: true,
       message: 'Login success',
@@ -154,6 +154,46 @@ exports.getSignedUser = async (req, res) => {
     return response(res, true, result, 200);
   } catch (err) {
     console.log(err);
+    return response(res, false, 'An error occured', 500);
+  }
+};
+
+exports.deleteUser = async (req, res) => {
+  try {
+    const result = await UserModel.findByPk(req.params.id);
+    await result.destroy();
+    return response(res, true, result, 200);
+  } catch (err) {
+    console.log(err);
+    return response(res, false, 'An error occured', 500);
+  }
+};
+
+exports.confirmPassword = async (req, res) => {
+  const data = req.authUser;
+  const { password } = req.body;
+  try {
+    const result = await bcrypt.compare(password, data.password);
+    if (!result) return response(res, false, 'Incorrect password', 400);
+    return response(res, true, result, 200);
+  } catch (err) {
+    console.log(err);
+    return response(res, false, 'An error occured', 500);
+  }
+};
+
+exports.changePassword = async (req, res) => {
+  const data = req.authUser;
+  const setData = req.body;
+  if (setData.password.length < 6) return response(res, false, 'password length must be 6 characters at least', 400);
+  if (setData.resendPassword !== setData.password) return response(res, false, 'password did not match', 400);
+  setData.password = await bcrypt.hash(setData.password, await bcrypt.genSalt());
+  try {
+    const signed = await UserModel.findByPk(data.id);
+    const result = signed.set('password', (setData.password));
+    await result.save();
+    return response(res, true, result, 200);
+  } catch (err) {
     return response(res, false, 'An error occured', 500);
   }
 };
