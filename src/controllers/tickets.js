@@ -50,7 +50,9 @@ exports.createTickets = async (req, res) => {
 
 exports.getTickets = async (req, res) => {
   let {
-    search = '', sort, limit = 8, page = 1,
+    destination = '', sort, limit = 8, page = 1,
+    departure = '', searchClass = '', price = '',
+    airline = '', deptime = '', arrtime = '',
   } = req.query;
   const order = [];
   if (typeof sort === 'object') {
@@ -75,7 +77,25 @@ exports.getTickets = async (req, res) => {
   const tickets = await ticketsModel.findAll({
     where: {
       destination: {
-        [Op.substring]: search,
+        [Op.substring]: destination,
+      },
+      departure: {
+        [Op.substring]: departure,
+      },
+      class: {
+        [Op.substring]: searchClass,
+      },
+      price: {
+        [Op.substring]: price,
+      },
+      id_airlines: {
+        [Op.substring]: airline,
+      },
+      departure_time: {
+        [Op.substring]: deptime,
+      },
+      arrival_time: {
+        [Op.substring]: arrtime,
       },
     },
     attributes: { exclude: ['id_airlines'] },
