@@ -15,14 +15,14 @@ const tickets = sequelize.define('tickets', {
   arrival_time: Sequelize.STRING,
   price: Sequelize.INTEGER,
   transit: Sequelize.STRING,
-  id_item_facilities: Sequelize.INTEGER,
   class: Sequelize.STRING,
   terminal: Sequelize.STRING,
   seat: Sequelize.STRING,
   gate: Sequelize.STRING,
 });
+tickets.hasMany(ItemFacilities);
 tickets.belongsTo(airlinesModel, { foreignKey: 'id_airlines', sourceKey: 'id' });
-tickets.belongsTo(ItemFacilities, { foreignKey: 'id_item_facilities', sourceKey: 'id_ticket' });
+
 Transactions.belongsTo(tickets, { foreignKey: 'id_ticket', sourceKey: 'id' });
 
 module.exports = tickets;

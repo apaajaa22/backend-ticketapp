@@ -79,21 +79,11 @@ exports.getTickets = async (req, res) => {
       },
     },
     attributes: { exclude: ['id_airlines'] },
-    include: [
-      {
-        model: airLinesModel,
-        attributes: { exclude: ['createdAt', 'updatedAt'] },
-      },
-      {
-        model: ItemFacilities,
-        attributes: { exclude: ['createdAt', 'updatedAt'] },
-        include: [{
-          model: facilities,
-          as: 'item',
-          attributes: { exclude: ['createdAt', 'updatedAt'] },
-        }],
-      },
-    ],
+    include: [airLinesModel, {
+      model: ItemFacilities,
+      include: facilities,
+      attributes: { exclude: ['facilityId', 'ticketId', 'createdAt', 'updatedAt'] },
+    }],
     order,
     limit,
     offset: (page - 1) * limit,
