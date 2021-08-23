@@ -12,7 +12,7 @@ exports.updateTicket = async (req, res) => {
   const setData = req.body;
   const ticketId = req.params.id;
   try {
-    const result = await Ticket.update(setData, {
+    const result = await ticketsModel.update(setData, {
       where: {
         id: ticketId,
       },
