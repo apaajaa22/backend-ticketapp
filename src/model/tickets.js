@@ -2,6 +2,8 @@ const Sequelize = require('sequelize');
 const sequelize = require('../config/sequelize');
 const airlinesModel = require('./airlines');
 const Transactions = require('./transactions');
+// const Facilities = require('./facilities');
+const ItemFacilities = require('./itemFacilities');
 
 const tickets = sequelize.define('tickets', {
   id_airlines: Sequelize.INTEGER,
@@ -20,6 +22,7 @@ const tickets = sequelize.define('tickets', {
   gate: Sequelize.STRING,
 });
 tickets.belongsTo(airlinesModel, { foreignKey: 'id_airlines', sourceKey: 'id' });
+tickets.belongsTo(ItemFacilities, { foreignKey: 'id_item_facilities', sourceKey: 'id_ticket' });
 Transactions.belongsTo(tickets, { foreignKey: 'id_ticket', sourceKey: 'id' });
 
 module.exports = tickets;

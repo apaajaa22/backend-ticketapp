@@ -1,14 +1,15 @@
+/* eslint-disable radix */
 /* eslint-disable no-console */
 const { validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
+const { Op, Sequelize } = require('sequelize');
 const bcrypt = require('bcrypt');
 const { response } = require('../helpers/response');
 const UserModel = require('../model/users');
 
-// const { APP_URL, APP_KEY, APP_UPLOAD_ROUTE } = process.env;
 const path = './assets/images';
-const { APP_KEY, APP_UPLOAD_ROUTE } = process.env;
+const { APP_KEY, APP_UPLOAD_ROUTE, APP_URL } = process.env;
 
 exports.updateUser = async (req, res) => {
   const setData = req.body;
@@ -90,7 +91,7 @@ exports.login = async (req, res) => {
   const compare = await bcrypt.compare(password, results.password);
 
   if (compare) {
-    const token = jwt.sign({ id: results.id, email: results.email }, APP_KEY, { expiresIn: '24h' });
+    const token = jwt.sign({ id: results.id, email: results.email, password: results.password }, APP_KEY, { expiresIn: '24h' });
     return res.status(200).json({
       success: true,
       message: 'Login success',
@@ -101,4 +102,98 @@ exports.login = async (req, res) => {
     success: false,
     message: 'username or password false',
   });
+};
+
+exports.searchUser = async (req, res) => {
+  const cond = req.query;
+  cond.search = cond.search || '';
+  cond.sort = cond.sort || {};
+  cond.sort.fullname = cond.sort.fullname || 'asc';
+  cond.limit = parseInt(cond.limit) || 5;
+  cond.offset = parseInt(cond.offset) || 0;
+  cond.page = parseInt(cond.page) || 1;
+  cond.offset = (cond.page * cond.limit) - cond.limit;
+  const pageInfo = {};
+
+  try {
+    const result = await UserModel.findAndCountAll({
+      where: {
+        [Op.or]: {
+          fullname: {
+            [Op.like]: `%${cond.search}%`,
+          },
+          email: {
+            [Op.like]: `%${cond.search}%`,
+          },
+        },
+      },
+      limit: cond.limit,
+      order: Sequelize.literal(`fullname ${cond.sort.fullname}`),
+      offset: cond.offset,
+    }, cond);
+    const totalData = result;
+    const totalPage = Math.ceil(totalData.count / cond.limit);
+    pageInfo.totalData = totalData;
+    pageInfo.currentPage = cond.page;
+    pageInfo.totalPage = totalPage;
+    pageInfo.limitData = cond.limit;
+    pageInfo.nextPage = cond.page < totalPage ? `${APP_URL}/users?page=${cond.page + 1}` : null;
+    pageInfo.prevPage = cond.page <= totalPage || cond.page === 1 ? `${APP_URL}/users?page=${cond.page - 1}` : null;
+    if (pageInfo.prevPage === `${APP_URL}/users?page=0`) pageInfo.prevPage = null;
+    if (result.count === 0) return response(res, false, 'User not found', 400);
+    return response(res, true, result.data, 200, pageInfo);
+  } catch (err) {
+    console.log(err);
+    return response(res, false, 'An error occured', 500);
+  }
+};
+
+exports.getSignedUser = async (req, res) => {
+  try {
+    const result = await UserModel.findByPk(req.authUser.id);
+    return response(res, true, result, 200);
+  } catch (err) {
+    console.log(err);
+    return response(res, false, 'An error occured', 500);
+  }
+};
+
+exports.deleteUser = async (req, res) => {
+  try {
+    const result = await UserModel.findByPk(req.params.id);
+    await result.destroy();
+    return response(res, true, result, 200);
+  } catch (err) {
+    console.log(err);
+    return response(res, false, 'An error occured', 500);
+  }
+};
+
+exports.confirmPassword = async (req, res) => {
+  const data = req.authUser;
+  const { password } = req.body;
+  try {
+    const result = await bcrypt.compare(password, data.password);
+    if (!result) return response(res, false, 'Incorrect password', 400);
+    return response(res, true, result, 200);
+  } catch (err) {
+    console.log(err);
+    return response(res, false, 'An error occured', 500);
+  }
+};
+
+exports.changePassword = async (req, res) => {
+  const data = req.authUser;
+  const setData = req.body;
+  if (setData.password.length < 6) return response(res, false, 'password length must be 6 characters at least', 400);
+  if (setData.resendPassword !== setData.password) return response(res, false, 'password did not match', 400);
+  setData.password = await bcrypt.hash(setData.password, await bcrypt.genSalt());
+  try {
+    const signed = await UserModel.findByPk(data.id);
+    const result = signed.set('password', (setData.password));
+    await result.save();
+    return response(res, true, result, 200);
+  } catch (err) {
+    return response(res, false, 'An error occured', 500);
+  }
 };

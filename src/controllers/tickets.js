@@ -5,7 +5,8 @@ const { Op } = require('sequelize');
 const ticketsModel = require('../model/tickets');
 const airLinesModel = require('../model/airlines');
 const { response } = require('../helpers/response');
-const Ticket = require('../model/tickets');
+const facilities = require('../model/facilities');
+const ItemFacilities = require('../model/itemFacilities');
 
 exports.updateTicket = async (req, res) => {
   const setData = req.body;
@@ -78,7 +79,13 @@ exports.getTickets = async (req, res) => {
       },
     },
     attributes: { exclude: ['id_airlines'] },
-    include: airLinesModel,
+    include: [
+      airLinesModel,
+      {
+        model: ItemFacilities,
+        include: [facilities],
+      },
+    ],
     order,
     limit,
     offset: (page - 1) * limit,
