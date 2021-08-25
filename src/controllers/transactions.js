@@ -99,22 +99,24 @@ exports.getTransaction = async (req, res) => {
 
 exports.getTransactionDetail = async (req, res) => {
   const { id } = req.params;
-  const transaction = await Transactions.findAll({
-    where: {
-      id: {
-        [Op.substring]: id,
+  try {
+    const transaction = await Transactions.findOne({
+      where: {
+        id,
       },
-    },
-    include: [
-      {
-        model: Tickets,
-        include: airlinesModel,
-      },
-    ],
-  });
-  return res.status(200).json({
-    success: true,
-    message: 'transaction details',
-    results: transaction,
-  });
+      include: [
+        {
+          model: Tickets,
+          include: airlinesModel,
+        },
+      ],
+    });
+    return res.status(200).json({
+      success: true,
+      message: 'transaction details',
+      results: transaction,
+    });
+  } catch (err) {
+    return response(res, false, 'An error occured', 500);
+  }
 };
