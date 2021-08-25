@@ -110,7 +110,7 @@ exports.getTickets = async (req, res) => {
   });
   return res.status(200).json({
     success: true,
-    message: 'tickets created successfully',
+    message: 'List Tickets',
     results: tickets,
     pageInfo: {
       totalPage: Math.ceil(count / limit),

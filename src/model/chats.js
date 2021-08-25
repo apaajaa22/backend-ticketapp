@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../config/sequelize');
+const User = require('./users');
 
 const Chats = sequelize.define('chats', {
   message: Sequelize.STRING,
@@ -11,5 +12,6 @@ const Chats = sequelize.define('chats', {
     allowNull: true,
   },
 });
+Chats.belongsTo(User, { foreignKey: 'recipient', sourceKey: 'id' });
 
 module.exports = Chats;
