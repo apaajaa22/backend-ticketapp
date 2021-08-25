@@ -14,7 +14,6 @@ exports.createChat = async (req, res) => {
   const newData = {
     isLatest: 0,
   };
-  console.log(setData.attachment, 'test file');
 
   try {
     if (req.file) {
@@ -38,6 +37,13 @@ exports.createChat = async (req, res) => {
       return updateRes;
     });
     const result = await Chats.create(setData);
+    console.log(req.socket);
+    req.socket.emit(setData.recipient, {
+      sender: setData.sender,
+      senderData: req.authUser,
+      recipient: setData.recipient,
+      message: setData.message,
+    });
     return response(res, true, result, 200);
   } catch (err) {
     console.log(err);
