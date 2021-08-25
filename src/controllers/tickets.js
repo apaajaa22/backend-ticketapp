@@ -72,8 +72,8 @@ exports.getTickets = async (req, res) => {
     page = parseInt(page);
   }
   const count = await ticketsModel.count();
-  const nextPage = page < Math.ceil(count / limit) ? `/tickets/tickets?departure=${departure}&destination=${destination}&page=${page + 1}` : null;
-  const prevPage = page > 1 ? `/tickets/tickets?departure=${departure}&destination=${destination}&page=${page - 1}` : null;
+  const nextPage = page < Math.ceil(count / limit) ? `/tickets/tickets?departure=${departure}&destination=${destination}&searchClass=${searchClass}&page=${page + 1}` : null;
+  const prevPage = page > 1 ? `/tickets/tickets?departure=${departure}&destination=${destination}&searchClass=${searchClass}&page=${page - 1}` : null;
   const tickets = await ticketsModel.findAll({
     where: {
       destination: {
