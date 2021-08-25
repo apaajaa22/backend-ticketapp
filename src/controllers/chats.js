@@ -2,6 +2,7 @@
 const { Op } = require('sequelize');
 const { response } = require('../helpers/response');
 const Chats = require('../model/chats');
+const User = require('../model/users');
 
 const { APP_UPLOAD_ROUTE } = process.env;
 
@@ -71,6 +72,13 @@ exports.getChatRoom = async (req, res) => {
 exports.getLatestUserChat = async (req, res) => {
   try {
     const chat = await Chats.findAll({
+      include: [
+        {
+          model: User,
+          attributes: { exclude: ['createdAt', 'updatedAt', 'email', 'password'] },
+        },
+      ],
+
       order: [['id', 'DESC']],
       where: {
         [Op.or]: [{ sender: req.authUser.id }, { recipient: req.authUser.id }],
