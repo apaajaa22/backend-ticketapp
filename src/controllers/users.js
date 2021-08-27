@@ -118,6 +118,9 @@ exports.searchUser = async (req, res) => {
   try {
     const result = await UserModel.findAndCountAll({
       where: {
+        [Op.not]: {
+          id: req.authUser.id,
+        },
         [Op.or]: {
           fullname: {
             [Op.like]: `%${cond.search}%`,
