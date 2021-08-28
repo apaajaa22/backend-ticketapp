@@ -47,6 +47,7 @@ exports.deleteNotifications = async (req, res) => {
         id: req.body.notifId,
       },
     });
+    notif.destroy();
     return response(res, true, notif, 200);
   } catch (error) {
     return response(res, false, 'An error occured', 500);
