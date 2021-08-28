@@ -12,6 +12,7 @@ CRUD database for:
 
 ## Built With
 [![Express.js  v4.17.1](https://img.shields.io/badge/Express%20-v4.17.1-brightgreen.svg?style=flat)](https://expressjs.com/)
+[![Sequelize  v6.6.5](https://img.shields.io/badge/Sequelize%20-v4.17.1-orange.svg?style=flat)](https://sequelize.org/)
 [![Node.js v14.17.3](https://img.shields.io/badge/Node%20-v14.17.3-blue.svg?style=flat)](https://nodejs.org/en/)
 
 
