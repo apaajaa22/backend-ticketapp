@@ -5,7 +5,11 @@ const UserModel = require('../model/users');
 
 exports.createNotification = async (req, res) => {
   try {
-    const result = await notifications.create(req.body);
+    const result = await notifications.create({
+      userId: req.authUser.id,
+      label: req.body.label,
+      message: req.body.message,
+    });
     return response(res, true, result, 200);
   } catch (err) {
     console.log(err);
