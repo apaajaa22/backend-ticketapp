@@ -36,7 +36,7 @@ exports.updateUser = async (req, res) => {
     return response(res, true, result.data, 200);
   } catch (err) {
     console.log(err);
-    return response(res, false, 'An error occured', 500);
+    return response(res, false, err.message, 500);
   }
 };
 
@@ -203,11 +203,11 @@ exports.confirmPassword = async (req, res) => {
 exports.changePassword = async (req, res) => {
   const data = req.authUser;
   const setData = req.body;
-  if (setData.password.length < 6) {
+  if (setData.password.length < 8) {
     return response(
       res,
       false,
-      'password length must be 6 characters at least',
+      'password length must be 8 characters at least',
       400,
     );
   }

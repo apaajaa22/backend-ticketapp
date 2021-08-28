@@ -48,7 +48,7 @@ exports.createChat = async (req, res) => {
     return response(res, true, result, 200);
   } catch (err) {
     console.log(err);
-    return response(res, false, 'An error occured', 500);
+    return response(res, false, err.message, 500);
   }
 };
 
@@ -93,7 +93,7 @@ exports.getLatestUserChat = async (req, res) => {
     });
     return response(res, true, chat, 200);
   } catch (err) {
-    return response(res, false, 'An error occured', 500);
+    return response(res, false, err, 500);
   }
 };
 
