@@ -7,12 +7,13 @@ const { Op, Sequelize } = require('sequelize');
 const bcrypt = require('bcrypt');
 const { response } = require('../helpers/response');
 const UserModel = require('../model/users');
-
+// eslint-disable-next-line prefer-destructuring
 const path = './assets/images';
 const { APP_KEY, APP_UPLOAD_ROUTE, APP_URL } = process.env;
 
 exports.updateUser = async (req, res) => {
   const setData = req.body;
+  console.log(setData, 'test file');
   try {
     const getUser = await UserModel.findByPk(req.authUser.id);
     if (req.file) {
@@ -37,6 +38,35 @@ exports.updateUser = async (req, res) => {
   } catch (err) {
     console.log(err);
     return response(res, false, err.message, 500);
+  }
+};
+
+exports.updatePicture = async (req, res) => {
+  const setData = req.body;
+  const user = req.authUser;
+  try {
+    console.log(req.body, req.file, 'file');
+
+    // setData.picture = `/${APP_UPLOAD_ROUTE}/${req.file.filename}`;
+    const getUser = await UserModel.findByPk(user.id);
+    if (req.file !== undefined && getUser.dataValues.picture !== null) {
+      const slicePicture = getUser.dataValues.picture.slice('8');
+      fs.unlinkSync(`${path}${slicePicture}`, (err, newData) => {
+        if (!err) return response(res, true, newData, 200);
+        return newData;
+      });
+    }
+    const result = await UserModel.update(setData, {
+      where: {
+        id: user.id,
+      },
+    });
+    // result.set('picture', (setData.picture));
+    // await result.save();
+    return response(res, true, result, 200);
+  } catch (err) {
+    console.log(err);
+    return response(res, false, 'An error occured', 500);
   }
 };
 

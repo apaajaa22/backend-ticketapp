@@ -53,6 +53,7 @@ exports.getTickets = async (req, res) => {
     destination = '', sort, limit = 8, page = 1,
     departure = '', searchClass = '', price = '',
     airline = '', deptime = '', arrtime = '',
+    transit = '',
 
   } = req.query;
   const order = [];
@@ -92,6 +93,9 @@ exports.getTickets = async (req, res) => {
       id_airlines: {
         [Op.substring]: airline,
       },
+      transit: {
+        [Op.substring]: transit,
+      },
       departure_time: {
         [Op.substring]: deptime,
       },
@@ -109,6 +113,7 @@ exports.getTickets = async (req, res) => {
     limit,
     offset: (page - 1) * limit,
   });
+  console.log(req.query, 'price');
   return res.status(200).json({
     success: true,
     message: 'List Tickets',

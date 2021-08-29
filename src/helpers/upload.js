@@ -26,6 +26,7 @@ const upload = multer({
 }).single('picture');
 
 const uploadFilter = (req, res, next) => {
+  console.log(req, 'test multer');
   upload(req, res, (err) => {
     if (err instanceof multer.MulterError) {
       // A Multer error occurred when uploading.
