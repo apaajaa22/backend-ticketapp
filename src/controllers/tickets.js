@@ -54,6 +54,7 @@ exports.getTickets = async (req, res) => {
     departure = '', searchClass = '', price = '',
     airline = '', deptime = '', arrtime = '',
     transit = '',
+
   } = req.query;
   const order = [];
   if (typeof sort === 'object') {
